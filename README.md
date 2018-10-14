@@ -1,3 +1,4 @@
 # hello po
-* test
-** yes
+**bold**
+~~strikethrough~~
+  
