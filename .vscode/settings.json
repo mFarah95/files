@@ -1,0 +1,14 @@
+{
+    "editor.tokenColorCustomizations": {
+        "[Night Owl]": {
+            "textMateRules": [
+                {
+                    "scope": "storage.type",
+                    "settings": {
+                        "foreground": "#ffb6e3"
+                    }
+                }
+            ]
+        }
+    }
+}
