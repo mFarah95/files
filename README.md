@@ -1,4 +1,4 @@
-# Testing  :shipit:
+# Testing:shipit:
 
 Will become a heading
 ==============
