@@ -71,7 +71,8 @@ def create_grid(event=None):
 def colorGraph(cord, color):
     c.create_rectangle(
         cord[0] * nodesizew,
-        cord[1] * nodesizeh, (cord[0] * nodesizew) + nodesizew, (cord[1] * nodesizeh) + nodesizeh,
+        cord[1] * nodesizeh, (cord[0] * nodesizew) + nodesizew,
+        (cord[1] * nodesizeh) + nodesizeh,
         tag='grid_line',
         fill=color)
 
