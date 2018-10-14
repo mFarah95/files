@@ -1,13 +1,16 @@
-# hello po
-## hello p
+# Testing
 
-### hell
+Will become a heading
+==============
 
-**bold** 
+Will become a sub heading
+--------------
 
-~~strikethrough~~ 
+*This will be Italic*
 
-> "Pardon my French" - M 
+**This will be Bold**
 
+- This will be a list item
+- This will be a list item
 
-hello is this `life`
+    Add a indent and this will end up as code
