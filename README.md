@@ -1,8 +1,9 @@
 # hello po
-**bold** \n
-~~strikethrough~~ \n
+**bold** 
+
+~~strikethrough~~ 
 
 > "Pardon my French" - M 
-\n
+
 
 hello is this 'life'
