@@ -146,8 +146,8 @@ def A_Star(start, end, graph):
 
         if current == end:
 
-            # we found the end! now return openset, closeset
-            # and path from start to end
+            # we found the end!
+            # now, return openset, closeset and path from start to end.
 
             path = [current]
             while current in cameFrom:
@@ -171,7 +171,7 @@ def A_Star(start, end, graph):
             if neighbour not in openSet:  # Discover a new node
                 openSet.add(neighbour)
             elif candidateG >= G[neighbour]:
-                continue  # This is not a better path
+                continue  # Not a better path :(
 
             # best current path
             cameFrom[neighbour] = current
@@ -231,7 +231,7 @@ if __name__ == "__main__":
 
     txtpath = os.path.join(dirname, "board-1-3.txt")
 
-    # interprets the values of the choosen txt file
+    # interpret values of the choosen txt file
     with open(txtpath, "r") as ins:
         x = 0
         y = 0
