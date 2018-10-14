@@ -1,4 +1,4 @@
 # School Assignments - NTNU
 
 
-### A* implementation in Python :rage:
+### A* implementation in Python 🗺️
