@@ -229,7 +229,7 @@ if __name__ == "__main__":
     # get path to board files
     dirname, filename = os.path.split(os.path.abspath(sys.argv[0]))
 
-    txtpath = os.path.join(dirname, "board-1-3.txt")
+    txtpath = os.path.join(dirname, "board-1-4.txt")
 
     # interpret values of the choosen txt file
     with open(txtpath, "r") as ins:
