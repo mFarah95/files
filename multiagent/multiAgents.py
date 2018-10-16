@@ -147,7 +147,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
     """
-
+    
     def getAction(self, gameState):
         """
           Returns the expectimax action using self.depth and self.evaluationFunction
