@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -14,9 +14,11 @@
 
 from util import manhattanDistance
 from game import Directions
-import random, util
+import random
+import util
 
 from game import Agent
+
 
 class ReflexAgent(Agent):
     """
@@ -27,7 +29,6 @@ class ReflexAgent(Agent):
       it in any way you see fit, so long as you don't touch our method
       headers.
     """
-
 
     def getAction(self, gameState):
         """
@@ -42,10 +43,13 @@ class ReflexAgent(Agent):
         legalMoves = gameState.getLegalActions()
 
         # Choose one of the best actions
-        scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
+        scores = [self.evaluationFunction(
+            gameState, action) for action in legalMoves]
         bestScore = max(scores)
-        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        bestIndices = [index for index in range(
+            len(scores)) if scores[index] == bestScore]
+        # Pick randomly among the best
+        chosenIndex = random.choice(bestIndices)
 
         "Add more of your code here if you want to"
 
@@ -71,10 +75,12 @@ class ReflexAgent(Agent):
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        newScaredTimes = [
+            ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
         return successorGameState.getScore()
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -85,6 +91,7 @@ def scoreEvaluationFunction(currentGameState):
       (not reflex agents).
     """
     return currentGameState.getScore()
+
 
 class MultiAgentSearchAgent(Agent):
     """
@@ -101,15 +108,57 @@ class MultiAgentSearchAgent(Agent):
       is another abstract class.
     """
 
-    def __init__(self, evalFn = 'scoreEvaluationFunction', depth = '2'):
-        self.index = 0 # Pacman is always agent index 0
+    def __init__(self, evalFn='scoreEvaluationFunction', depth='2'):
+        self.index = 0  # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
+    actionDict = dict()
+    countdepth = 0
+
+    def terminaltest(self, gameState):
+
+        return gameState.isWin() or gameState.isLose()
+
+
+    def isPac(self, gameState, agentindex):
+        return agentindex % gameState.getNumAgents() == 0
+
+    def xalValue(self, depth, gameState, agentindex):
+
+        if depth == 0 or self.terminaltest(gameState):
+            return self.evaluationFunction(gameState)
+
+        
+        
+        if self.isPac(gameState,agentindex):
+            v = {self.xalValue(depth, gameState.generateSuccessor(0, a), agentindex+1): a
+            for a in gameState.getLegalActions(self.index)}
+
+            self.actionDict.clear()
+            self.actionDict = v.copy() 
+            return max(v)
+
+
+        elif not self.isPac(gameState,agentindex) and agentindex == gameState.getNumAgents()-1:
+            
+            v = {self.xalValue(depth-1, gameState.generateSuccessor(agentindex, a), 0): a
+            for a in gameState.getLegalActions(agentindex)}
+
+            return min(v) 
+
+        else:
+            v = {self.xalValue(depth, gameState.generateSuccessor(agentindex, a), agentindex+1): a
+            for a in gameState.getLegalActions(agentindex)}
+
+            return min(v)
+            
+
 
     def getAction(self, gameState):
         """
@@ -127,9 +176,16 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
           gameState.getNumAgents():
             Returns the total number of agents in the game
+
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        # *** YOUR CODE HERE ***
+       
+
+        agent_index = 0
+        bestmove = self.xalValue(self.depth, gameState, agent_index)
+        return self.actionDict[bestmove]
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -143,11 +199,12 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
+
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
     """
-    
+
     def getAction(self, gameState):
         """
           Returns the expectimax action using self.depth and self.evaluationFunction
@@ -157,6 +214,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
+
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -168,6 +226,6 @@ def betterEvaluationFunction(currentGameState):
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
+
 # Abbreviation
 better = betterEvaluationFunction
-

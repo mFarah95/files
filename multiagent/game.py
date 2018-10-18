@@ -564,7 +564,7 @@ class Game:
         sys.stderr = OLD_STDERR
 
 
-    def run( self ):
+    def run(self):
         """
         Main control loop for game play.
         """
