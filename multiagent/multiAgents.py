@@ -125,7 +125,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         return gameState.isWin() or gameState.isLose()
 
-
     def isPac(self, gameState, agentindex):
         return agentindex % gameState.getNumAgents() == 0
 
@@ -134,31 +133,26 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if depth == 0 or self.terminaltest(gameState):
             return self.evaluationFunction(gameState)
 
-        
-        
-        if self.isPac(gameState,agentindex):
+        if self.isPac(gameState, agentindex):
             v = {self.xalValue(depth, gameState.generateSuccessor(0, a), agentindex+1): a
-            for a in gameState.getLegalActions(self.index)}
+                 for a in gameState.getLegalActions(self.index)}
 
             self.actionDict.clear()
-            self.actionDict = v.copy() 
+            self.actionDict = v.copy()
             return max(v)
 
+        elif not self.isPac(gameState, agentindex) and agentindex == gameState.getNumAgents()-1:
 
-        elif not self.isPac(gameState,agentindex) and agentindex == gameState.getNumAgents()-1:
-            
             v = {self.xalValue(depth-1, gameState.generateSuccessor(agentindex, a), 0): a
-            for a in gameState.getLegalActions(agentindex)}
+                 for a in gameState.getLegalActions(agentindex)}
 
-            return min(v) 
+            return min(v)
 
         else:
             v = {self.xalValue(depth, gameState.generateSuccessor(agentindex, a), agentindex+1): a
-            for a in gameState.getLegalActions(agentindex)}
+                 for a in gameState.getLegalActions(agentindex)}
 
             return min(v)
-            
-
 
     def getAction(self, gameState):
         """
@@ -180,14 +174,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
 
         # *** YOUR CODE HERE ***
-       
 
         agent_index = 0
         bestmove = self.xalValue(self.depth, gameState, agent_index)
         return self.actionDict[bestmove]
 
 
-class AlphaBetaAgent(MultiAgentSearchAgent):
+class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
     """
@@ -200,10 +193,96 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         util.raiseNotDefined()
 
 
-class ExpectimaxAgent(MultiAgentSearchAgent):
+class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
     """
+
+    def terminaltest(self, gameState):
+
+        return gameState.isWin() or gameState.isLose()
+
+    def isPac(self, gameState, agentindex):
+        return agentindex % gameState.getNumAgents() == 0
+
+
+
+
+
+    def xalValue(self, depth, gameState, agentindex, alpha, beta):
+
+        if depth == 0 or self.terminaltest(gameState) or len(gameState.getLegalActions(agentindex))==0:
+            return self.evaluationFunction(gameState), None
+
+
+
+
+
+
+
+        if self.isPac(gameState, agentindex):
+            v = float("-inf")
+            bestact = None
+            for a in gameState.getLegalActions(agentindex):
+                
+                sucsessvalue = self.xalValue(depth, gameState.generateSuccessor(
+                    agentindex, a), agentindex+1, alpha,beta)[0]
+                if v < sucsessvalue:
+                    v, bestact = sucsessvalue,a
+                
+                if sucsessvalue > beta:
+
+                    return v, bestact
+
+                alpha = max(alpha,v)
+
+            return v, bestact
+
+
+
+        elif not self.isPac(gameState, agentindex) and agentindex + 1 == gameState.getNumAgents():
+
+
+            v = float("inf")
+            bestact = None
+            for a in gameState.getLegalActions(agentindex):
+                
+                sucsessvalue = self.xalValue(
+                    depth - 1, gameState.generateSuccessor(agentindex, a), 0, alpha, beta)[0]
+
+                if sucsessvalue < v:
+    
+                    v, bestact = sucsessvalue, a
+                
+                if v < alpha:
+
+                    return v, bestact
+
+                beta = min(beta,v)
+
+
+            return v,bestact
+
+        else:
+            v = float("inf")
+            bestact = None
+
+            for a in gameState.getLegalActions(agentindex):
+
+                sucsessvalue = self.xalValue(depth, gameState.generateSuccessor(
+                    agentindex, a), agentindex+1, alpha, beta)[0]
+
+                if sucsessvalue < v:
+        
+                    v, bestact = sucsessvalue, a
+                
+                if v < alpha:
+
+                    return v, bestact
+
+                beta = min(beta,v)
+            
+            return v, bestact
 
     def getAction(self, gameState):
         """
@@ -213,7 +292,12 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        agent_index = 0
+        alpha = float("-inf")
+        beta =  float("inf")
+        bestmove = self.xalValue(self.depth, gameState, agent_index, alpha, beta)[1]
+        return bestmove
 
 
 def betterEvaluationFunction(currentGameState):
