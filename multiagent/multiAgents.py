@@ -128,13 +128,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
     def isPac(self, gameState, agentindex):
         return agentindex % gameState.getNumAgents() == 0
 
-    def xalValue(self, depth, gameState, agentindex):
+    def agentvalue(self, depth, gameState, agentindex):
 
         if depth == 0 or self.terminaltest(gameState):
             return self.evaluationFunction(gameState)
 
         if self.isPac(gameState, agentindex):
-            v = {self.xalValue(depth, gameState.generateSuccessor(0, a), agentindex+1): a
+            v = {self.agentvalue(depth, gameState.generateSuccessor(0, a), agentindex+1): a
                  for a in gameState.getLegalActions(self.index)}
 
             self.actionDict.clear()
@@ -143,13 +143,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         elif not self.isPac(gameState, agentindex) and agentindex == gameState.getNumAgents()-1:
 
-            v = {self.xalValue(depth-1, gameState.generateSuccessor(agentindex, a), 0): a
+            v = {self.agentvalue(depth-1, gameState.generateSuccessor(agentindex, a), 0): a
                  for a in gameState.getLegalActions(agentindex)}
 
             return min(v)
 
         else:
-            v = {self.xalValue(depth, gameState.generateSuccessor(agentindex, a), agentindex+1): a
+            v = {self.agentvalue(depth, gameState.generateSuccessor(agentindex, a), agentindex+1): a
                  for a in gameState.getLegalActions(agentindex)}
 
             return min(v)
@@ -176,7 +176,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         # *** YOUR CODE HERE ***
 
         agent_index = 0
-        bestmove = self.xalValue(self.depth, gameState, agent_index)
+        bestmove = self.agentvalue(self.depth, gameState, agent_index)
         return self.actionDict[bestmove]
 
 
@@ -205,83 +205,73 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     def isPac(self, gameState, agentindex):
         return agentindex % gameState.getNumAgents() == 0
 
+    def agentvalue(self, depth, gameState, agentindex, alpha, beta):
 
-
-
-
-    def xalValue(self, depth, gameState, agentindex, alpha, beta):
-
-        if depth == 0 or self.terminaltest(gameState) or len(gameState.getLegalActions(agentindex))==0:
+        if depth == 0 or self.terminaltest(gameState):
             return self.evaluationFunction(gameState), None
 
-
-
-
-
-
-
+        # MAX
         if self.isPac(gameState, agentindex):
             v = float("-inf")
             bestact = None
             for a in gameState.getLegalActions(agentindex):
-                
-                sucsessvalue = self.xalValue(depth, gameState.generateSuccessor(
-                    agentindex, a), agentindex+1, alpha,beta)[0]
+
+                sucsessvalue = self.agentvalue(depth, gameState.generateSuccessor(
+                    agentindex, a), agentindex+1, alpha, beta)[0]
+
                 if v < sucsessvalue:
-                    v, bestact = sucsessvalue,a
-                
+                    v, bestact = sucsessvalue, a
+
                 if sucsessvalue > beta:
 
                     return v, bestact
 
-                alpha = max(alpha,v)
+                alpha = max(alpha, v)
 
             return v, bestact
 
-
-
+        # MIN
         elif not self.isPac(gameState, agentindex) and agentindex + 1 == gameState.getNumAgents():
-
 
             v = float("inf")
             bestact = None
             for a in gameState.getLegalActions(agentindex):
-                
-                sucsessvalue = self.xalValue(
+
+                sucsessvalue = self.agentvalue(
                     depth - 1, gameState.generateSuccessor(agentindex, a), 0, alpha, beta)[0]
 
                 if sucsessvalue < v:
-    
+
                     v, bestact = sucsessvalue, a
-                
+
                 if v < alpha:
 
                     return v, bestact
 
-                beta = min(beta,v)
+                beta = min(beta, v)
 
+            return v, bestact
 
-            return v,bestact
-
+        # MIN (when successor is min)
         else:
             v = float("inf")
             bestact = None
 
             for a in gameState.getLegalActions(agentindex):
 
-                sucsessvalue = self.xalValue(depth, gameState.generateSuccessor(
+                sucsessvalue = self.agentvalue(depth, gameState.generateSuccessor(
                     agentindex, a), agentindex+1, alpha, beta)[0]
 
                 if sucsessvalue < v:
-        
+
                     v, bestact = sucsessvalue, a
-                
+
                 if v < alpha:
 
                     return v, bestact
 
-                beta = min(beta,v)
-            
+                beta = min(beta, v)
+
             return v, bestact
 
     def getAction(self, gameState):
@@ -295,9 +285,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         agent_index = 0
         alpha = float("-inf")
-        beta =  float("inf")
-        bestmove = self.xalValue(self.depth, gameState, agent_index, alpha, beta)[1]
-        return bestmove
+        beta = float("inf")
+
+        return self.agentvalue(self.depth, gameState, agent_index, alpha, beta)[1]
 
 
 def betterEvaluationFunction(currentGameState):

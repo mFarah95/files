@@ -11,6 +11,6 @@
             ]
         }
     },
-    "python.pythonPath": "C:\\Python27\\python.exe",
+    "python.pythonPath": "C:\\Users\\Mustafe Farah\\Anaconda3\\envs\\r-tensorflow\\python.exe",
     "python.formatting.provider": "autopep8"
 }
