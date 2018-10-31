@@ -11,7 +11,8 @@ import sys
 from nltk.stem.porter import PorterStemmer
 
 
-############################### PART 1 ##################################
+################ PART 1 -  Data loading and preprocessing #################
+
 random.seed(123)
 
 # Open text
@@ -34,7 +35,7 @@ stemmer = PorterStemmer()
 stemmed = [[stemmer.stem(word) for word in parh] for parh in tokenized]
 
 
-############################### PART 2 ##################################
+################ PART 2 - Dictionary building #############################
 
 # Load "common english words" text file
 cm_w = io.open("nlp/common-english-words.txt", "r", encoding="utf-8")
@@ -56,3 +57,6 @@ dictionary.filter_tokens(stopwords_ids)
 
 # Map paragraphs into Bags-of-Words using the dictionary
 bow = [dictionary.doc2bow(prgh) for prgh in stemmed]
+
+
+################ PART 3 - Retrieval Models ###############################
