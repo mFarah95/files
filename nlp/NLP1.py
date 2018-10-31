@@ -11,7 +11,7 @@ import sys
 from nltk.stem.porter import PorterStemmer
 
 
-################ PART 1 -  Data loading and preprocessing #################
+################ PART 1 - Data loading and preprocessing #################
 
 random.seed(123)
 
