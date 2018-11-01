@@ -35,8 +35,11 @@ def main():
 
     # Open text
     f = io.open("nlp/pg3300.txt", 'r', encoding="utf-8")
+
     # Remove text punctuation and lower case
-    text = f.read().translate(str.maketrans('', '', string.punctuation)).lower()
+    text = f.read().translate(
+        str.maketrans('', '', string.punctuation)).lower()
+
     # Split text into paragraphs
     split_paragraph = re.split(r"\n\s*\n", str(text))
 
@@ -46,6 +49,8 @@ def main():
 
     # Tokenize paragraphs (split them into words) and remove whitespaces
     tokenized = [prgh.split() for prgh in filtered_word]
+
+    print(tokenized)
 
     # Stemmeing
     stemmer = PorterStemmer()
@@ -89,13 +94,45 @@ def main():
     # Repeating steps above for LSI
     lsi_model, lsi_index = get_lsi(tfidf_corpus, dictionary)
 
-    # Report and interpret first 3 LSI topics
+    # Report and interpret first 3 LSI topics ------------- PRINT THIS
     lsi_model.show_topics(num_topics=3)
 
     ################ PART 4 - Querying #######################################
 
-    print("done")
+    # Query
+    preprocessed_query = "What is the function of money?"
+
+    # Apply transformations part 1 (remove punctuations, tokenize and lowercase)
+    transformations = preprocessed_query.translate(
+        str.maketrans('', '', string.punctuation)).lower().split()
+
+    # Apply transformations part 2 (stem and convert to BOW)
+    query = dictionary.doc2bow([stemmer.stem(word)
+                                for word in transformations])
+
+    # Convert BOW to TF-IDF ----------------------------- PRINT THIS
+    query_tfidf = tfidf_model[query]
+
+    # Top 3 most relevant paragraphs
+    doc2similarity = enumerate(tfidf_index[query_tfidf])
+    #print(sorted(doc2similarity, key=lambda kv: -kv[1])[:3])
+
+    f = io.open("nlp/pg3300.txt", 'r')
+    test4 = re.split(r"\n\s*\n", f.read())
+
+    test2 = list(filter(
+        lambda prgh: 'gutenberg' not in prgh, test4))
+
+"""
+    print(len(test2))
+    print(len(split_paragraph))
+
+    print(len(tfidf_index))
+    print(len(tokenized))
+"""
+    
 
 
 if __name__ == '__main__':
     main()
+    print("done")
