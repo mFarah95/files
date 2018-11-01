@@ -36,25 +36,26 @@ def main():
     # Open text
     f = io.open("nlp/pg3300.txt", 'r', encoding="utf-8")
 
-    # Remove text punctuation and lower case
-    text = f.read().translate(
-        str.maketrans('', '', string.punctuation)).lower()
+    testt = f.read()
 
     # Split text into paragraphs
-    split_paragraph = re.split(r"\n\s*\n", str(text))
+    split_paragraph = re.split(r"\n\s*\n", testt)
 
     # Filter out paragraphs that contain "gutenberg"
-    filtered_word = filter(
-        lambda prgh: 'gutenberg' not in prgh, split_paragraph)
+    filtered_word = list(filter(
+        lambda prgh: not re.search(r"gutenberg", prgh, re.IGNORECASE), split_paragraph))
 
     # Tokenize paragraphs (split them into words) and remove whitespaces
     tokenized = [prgh.split() for prgh in filtered_word]
 
-    print(tokenized)
+    # Remove text punctuation and lower case
+    text = [[word.translate(
+        str.maketrans('', '', string.punctuation+"\n\r\t")).lower()
+        for word in parh] for parh in tokenized]
 
     # Stemmeing
     stemmer = PorterStemmer()
-    stemmed = [[stemmer.stem(word) for word in parh] for parh in tokenized]
+    stemmed = [[stemmer.stem(word) for word in parh] for parh in text]
 
     ################ PART 2 - Dictionary building #############################
 
@@ -113,23 +114,22 @@ def main():
     # Convert BOW to TF-IDF ----------------------------- PRINT THIS
     query_tfidf = tfidf_model[query]
 
-    # Top 3 most relevant paragraphs
+    # Sort top 3 most relevant paragraphs
     doc2similarity = enumerate(tfidf_index[query_tfidf])
-    #print(sorted(doc2similarity, key=lambda kv: -kv[1])[:3])
+    sorted_sim = sorted(doc2similarity, key=lambda kv: -kv[1])[:3]
 
+    # non utf-8 of the text
     f = io.open("nlp/pg3300.txt", 'r')
-    test4 = re.split(r"\n\s*\n", f.read())
+    
+    # Split into paragraphs and remove header and footer
+    orginal = re.split(r"\n\s*\n", f.read())
+    orginal = list(filter(
+        lambda prgh: not re.search(r"gutenberg", prgh, re.IGNORECASE), orginal))
 
-    test2 = list(filter(
-        lambda prgh: 'gutenberg' not in prgh, test4))
-
-"""
-    print(len(test2))
-    print(len(split_paragraph))
-
-    print(len(tfidf_index))
-    print(len(tokenized))
-"""
+    # Report top 3 the most relevant paragraphs
+    print("TOP 3 MOST RELVANT PARAGRAPHS:", "\n")
+    for prgh in sorted_sim:
+       print("paragraph:", prgh[0], "\n", orginal[prgh[0]],"\n\n")
     
 
 
