@@ -11,52 +11,91 @@ import sys
 from nltk.stem.porter import PorterStemmer
 
 
-################ PART 1 - Data loading and preprocessing #################
+def get_lsi(tfidf_corpus, dictionary):
 
-random.seed(123)
+    # Build LSI
+    lsi_model = gensim.models.LsiModel(
+        tfidf_corpus, id2word=dictionary, num_topics=100)
 
-# Open text
-f = io.open("nlp/pg3300.txt", 'r', encoding="utf-8")
-# Remove text punctuation and lower case
-text = f.read().translate(str.maketrans('', '', string.punctuation)).lower()
-# Split text into paragraphs
-split_paragraph = re.split(r"\n\s*\n", str(text))
+    # Map bow into LSI weights
+    lsi_corpus = lsi_model[tfidf_corpus]
 
+    # MatrixSimilarity object
+    index = gensim.similarities.MatrixSimilarity(
+        lsi_corpus, num_features=len(dictionary))
 
-# Filter out paragraphs that contain "gutenberg"
-filtered_word = filter(
-    lambda prgh: 'gutenberg' not in prgh, split_paragraph)
-
-# Tokenize paragraphs (split them into words) and remove whitespaces
-tokenized = [prgh.split() for prgh in filtered_word]
-
-# Stemmeing
-stemmer = PorterStemmer()
-stemmed = [[stemmer.stem(word) for word in parh] for parh in tokenized]
+    return lsi_model, index
 
 
-################ PART 2 - Dictionary building #############################
+def main():
 
-# Load "common english words" text file
-cm_w = io.open("nlp/common-english-words.txt", "r", encoding="utf-8")
-stopwords = cm_w.read().split(",")
+    ################ PART 1 - Data loading and preprocessing #################
 
-# Init Corpora dictionary
-dictionary = gensim.corpora.Dictionary(stemmed)
+    random.seed(123)
 
-# Filter stopwords that are not in dictinoary
-stopwords = list(filter(
-    lambda word: word in dictionary.token2id, stopwords))
+    # Open text
+    f = io.open("nlp/pg3300.txt", 'r', encoding="utf-8")
+    # Remove text punctuation and lower case
+    text = f.read().translate(str.maketrans('', '', string.punctuation)).lower()
+    # Split text into paragraphs
+    split_paragraph = re.split(r"\n\s*\n", str(text))
 
-# Get stopword IDs
-stopwords_ids = list(
-    map(lambda w: dictionary.token2id[w], stopwords))
+    # Filter out paragraphs that contain "gutenberg"
+    filtered_word = filter(
+        lambda prgh: 'gutenberg' not in prgh, split_paragraph)
 
-# Filter stopwords
-dictionary.filter_tokens(stopwords_ids)
+    # Tokenize paragraphs (split them into words) and remove whitespaces
+    tokenized = [prgh.split() for prgh in filtered_word]
 
-# Map paragraphs into Bags-of-Words using the dictionary
-bow = [dictionary.doc2bow(prgh) for prgh in stemmed]
+    # Stemmeing
+    stemmer = PorterStemmer()
+    stemmed = [[stemmer.stem(word) for word in parh] for parh in tokenized]
+
+    ################ PART 2 - Dictionary building #############################
+
+    # Load "common english words" text file
+    cm_w = io.open("nlp/common-english-words.txt", "r", encoding="utf-8")
+    stopwords = cm_w.read().split(",")
+
+    # Init Corpora dictionary
+    dictionary = gensim.corpora.Dictionary(stemmed)
+
+    # Filter stopwords that are not in dictinoary
+    stopwords = list(filter(
+        lambda word: word in dictionary.token2id, stopwords))
+
+    # Get stopword IDs
+    stopwords_ids = list(
+        map(lambda w: dictionary.token2id[w], stopwords))
+
+    # Filter stopwords
+    dictionary.filter_tokens(stopwords_ids)
+
+    # Map paragraphs into Bags-of-Words using the dictionary
+    corpus = [dictionary.doc2bow(prgh) for prgh in stemmed]
+
+    ################ PART 3 - Retrieval Models ###############################
+
+    # Build TF-IDF
+    tfidf_model = gensim.models.TfidfModel(corpus)
+
+    # Map bow into TF-IDF weights
+    tfidf_corpus = tfidf_model[corpus]
+
+    # MatrixSimilarity object
+    tfidf_index = gensim.similarities.MatrixSimilarity(
+        tfidf_corpus, num_features=len(dictionary))
+
+    # Repeating steps above for LSI
+    lsi_model, lsi_index = get_lsi(tfidf_corpus, dictionary)
+
+    # Report and interpret first 3 LSI topics
+    lsi_model.show_topics(num_topics=3)
+
+    ################ PART 4 - Querying #######################################
+
+    print("done")
 
 
-################ PART 3 - Retrieval Models ###############################
+if __name__ == '__main__':
+    main()
