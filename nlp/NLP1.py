@@ -95,8 +95,9 @@ def main():
     # Repeating steps above for LSI
     lsi_model, lsi_index = get_lsi(tfidf_corpus, dictionary)
 
-    # Report and interpret first 3 LSI topics ------------- PRINT THIS
-    lsi_model.show_topics(num_topics=3)
+    # Report and interpret first 3 LSI topics
+    print("[First 3 LSI topics] \n",
+          lsi_model.show_topics(num_topics=3), "\n\n")
 
     ################ PART 4 - Querying #######################################
 
@@ -112,27 +113,55 @@ def main():
                                 for word in transformations])
 
     # Convert BOW to TF-IDF ----------------------------- PRINT THIS
-    query_tfidf = tfidf_model[query]
+    tfidf_query = tfidf_model[query]
+
+    # Report
+    print("[TF-IDF weights]")
+    for weights in tfidf_query:
+        print(str(dictionary[weights[0]]) + ":", weights[1], end=' ')
+    print("\n\n")
 
     # Sort top 3 most relevant paragraphs
-    doc2similarity = enumerate(tfidf_index[query_tfidf])
-    sorted_sim = sorted(doc2similarity, key=lambda kv: -kv[1])[:3]
+    doc2similarity_tfidf = enumerate(tfidf_index[tfidf_query])
+    sorted_sim_tfidf = sorted(doc2similarity_tfidf, key=lambda kv: -kv[1])[:3]
 
     # non utf-8 of the text
     f = io.open("nlp/pg3300.txt", 'r')
-    
+
     # Split into paragraphs and remove header and footer
     orginal = re.split(r"\n\s*\n", f.read())
+
     orginal = list(filter(
         lambda prgh: not re.search(r"gutenberg", prgh, re.IGNORECASE), orginal))
 
-    # Report top 3 the most relevant paragraphs
-    print("TOP 3 MOST RELVANT PARAGRAPHS:", "\n")
-    for prgh in sorted_sim:
-       print("paragraph:", prgh[0], "\n", orginal[prgh[0]],"\n\n")
-    
+    # Report
+    print("TF-IDF: TOP 3 MOST RELVANT PARAGRAPHS:", "\n")
+
+    for prgh in sorted_sim_tfidf:
+        print("[paragraph " + str(prgh[0]) + "]", "\n",
+              orginal[prgh[0]].split("\n")[:5], "\n\n")
+
+    # Top 3 topics with the most significant (with the largest absolute values) weights
+    lsi_query = lsi_model[tfidf_query]
+
+    sorted_abs = sorted(lsi_query, key=lambda kv: -abs(kv[1]))[:3]
+
+    # Report
+    print("TOP 3 MOST SIGNIFICANT WEIGHTS:", "\n")
+    for topic in sorted_abs:
+        print("[topic " + str(topic[0]) + "]", "\n",
+              lsi_model.show_topics()[topic[0]][1], "\n\n")
+
+    # Top 3 the most relevant paragraphs (LSI model)
+    doc2similarity_lsi = enumerate(lsi_index[lsi_query])
+    sorted_sim_lsi = sorted(doc2similarity_lsi, key=lambda kv: -kv[1])[:3]
+
+    # Report
+    print("LSI MODEL: TOP 3 MOST RELVANT PARAGRAPHS:", "\n")
+    for prgh in sorted_sim_lsi:
+        print("[paragraph " + str(prgh[0]) + "]", "\n",
+              orginal[prgh[0]].split("\n")[:5], "\n\n")
 
 
 if __name__ == '__main__':
     main()
-    print("done")
