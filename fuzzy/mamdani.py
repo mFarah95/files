@@ -40,17 +40,29 @@ def reverse_grade(position, x0, x1, clip):
 
 
 def main():
-    verySmall = reverse_grade(distance, 1, 2.5, 1)
+    verysmall = reverse_grade(distance, 0, 2.5, 1)
     small = triangle(distance, 1.5, 3, 4.5, 1)
     perfect = triangle(distance, 3.5, 5, 6.5, 1)
     big = triangle(distance, 5.5, 7, 8.5, 1)
-    veryBig = grade(distance, 7.5, 9, 1)
+    verybig = grade(distance, 7.5, 10, 1)
 
-    shrinkingFast = reverse_grade(delta, -4, -2.5, 1)
+    shrinkingfast = reverse_grade(delta, -5, -2.5, 1)
     shrinking = triangle(delta, -3.5, -2, -0.5, 1)
     stable = triangle(delta, -1.5, 0, 1.5, 1)
     growing = triangle(delta, 0.5, 2, 3.5, 1)
-    growingFast = grade(delta, 2.5, 4, 1)
+    growingfast = grade(delta, 2.5, 5, 1)
+
+    none = min(small, growing)
+    slowdown = min(small, stable)
+    speedup = min(perfect, growing)
+    floorit = min(verybig, max(1-growing, 1-growingfast))
+    breakhard = verysmall
+
+    cog = ((-1 + 0 + 1) * none + (-6-5-4-3-2) * slowdown + (3+4+5+6) *
+           speedup + (-10 - 8) * breakhard + (8 + 10) * floorit) / \
+        (3*none + slowdown * 5 + speedup * 4 + 2 * breakhard + 2 * floorit)
+
+    print(cog)
 
 
 if __name__ == '__main__':
