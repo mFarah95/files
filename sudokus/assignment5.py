@@ -122,8 +122,15 @@ class CSP:
         in 'assignment' that have not yet been decided, i.e. whose list
         of legal values has a length greater than one.
         """
-        # TODO: IMPLEMENT THIS
-        pass
+        # list of legal values (len > 1)
+        l = list(filter(
+            lambda name: len(assignment.domains[name]) > 1, assignment.domains.keys()))
+
+        # return first in list. If empty return nothing
+        if len(l) > 0:
+            return l[0]
+        else:
+            return
 
     def inference(self, assignment, queue):
         """The function 'AC-3' from the pseudocode in the textbook.
@@ -132,7 +139,15 @@ class CSP:
         is the initial queue of arcs that should be visited.
         """
         # TODO: IMPLEMENT THIS
-        pass
+
+        queue = set(queue)
+        while len(queue) > 0:
+            elem = queue.pop()
+            if self.revise(assignment, elem[0], elem[1]):
+                if len(assignment) == 0: return False
+                for elem_neigh in self.get_all_neighboring_arcs(elem[0]):
+                    queue.append((elem_neigh,elem[0]))
+        return True
 
     def revise(self, assignment, i, j):
         """The function 'Revise' from the pseudocode in the textbook.
@@ -144,7 +159,13 @@ class CSP:
         legal values in 'assignment'.
         """
         # TODO: IMPLEMENT THIS
-        pass
+        revised = False
+        for x in assignment[i]:
+            for y in assignment[j]:             # might be wrong
+                if x is not y and (x, y) not in self.constraints[i][j]:
+                    assignment[i].remove(x)
+                    revised = True
+        return revised
 
 
 def create_map_coloring_csp():
@@ -184,9 +205,11 @@ def create_sudoku_csp(filename):
                 csp.add_variable('%d-%d' % (row, col), [board[row][col]])
 
     for row in range(9):
-        csp.add_all_different_constraint(['%d-%d' % (row, col) for col in range(9)])
+        csp.add_all_different_constraint(
+            ['%d-%d' % (row, col) for col in range(9)])
     for col in range(9):
-        csp.add_all_different_constraint(['%d-%d' % (row, col) for row in range(9)])
+        csp.add_all_different_constraint(
+            ['%d-%d' % (row, col) for row in range(9)])
     for box_row in range(3):
         for box_col in range(3):
             cells = []
@@ -211,3 +234,19 @@ def print_sudoku_solution(solution):
         print
         if row == 2 or row == 5:
             print '------+-------+------'
+
+
+if __name__ == '__main__':
+
+    sudoku = create_sudoku_csp("easy.txt")
+
+    mapcolor = create_map_coloring_csp()
+    print mapcolor.constraints['WA']['SA']
+    print 'k \n'
+    #print "lol",mapcolor.domains[mapcolor.get_all_arcs()[0][0]]
+    print mapcolor.revise(mapcolor.domains, mapcolor.get_all_arcs()[
+        0][0], mapcolor.get_all_arcs()[0][1])
+    print '\n'
+    print mapcolor.get_all_arcs()
+
+    print "done"
