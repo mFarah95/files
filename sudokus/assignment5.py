@@ -269,8 +269,9 @@ def print_sudoku_solution(solution):
 if __name__ == '__main__':
 
     sudoku = create_sudoku_csp("veryhard.txt")
-
     print_sudoku_solution(sudoku.backtracking_search())
+
+
     print "\n"
     print "number of times BACKTRACK function returned failure:"
     print sudoku.countBTfailures
