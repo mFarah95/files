@@ -70,3 +70,7 @@ number of times BACKTRACK function returned failure:
 35
 number of times BACKTRACK function was called:
 43
+-----------------------------------------------------------------------------
+
+Displayed numbers indicates an increase of failures and function calls based on
+game difficulties.
