@@ -114,7 +114,25 @@ class CSP:
         iterations of the loop.
         """
         # TODO: IMPLEMENT THIS
-        pass
+
+        # if assignment is complete (no domains with 1 value)
+        if all(map(lambda key: len(assignment[key]) == 1, assignment.keys())):
+            return assignment
+
+        var = self.select_unassigned_variable(assignment)
+        for value in assignment[var]:
+
+            # deep copy
+            copy_assignment = copy.deepcopy(assignment)
+            copy_assignment[var] = [value]
+
+            if self.inference(copy_assignment,
+                              self.get_all_neighboring_arcs(var)):
+                result = self.backtrack(copy_assignment)
+                if result:
+                    return result
+
+        return False
 
     def select_unassigned_variable(self, assignment):
         """The function 'Select-Unassigned-Variable' from the pseudocode
@@ -122,31 +140,26 @@ class CSP:
         in 'assignment' that have not yet been decided, i.e. whose list
         of legal values has a length greater than one.
         """
-        # list of legal values (len > 1)
-        l = list(filter(
-            lambda name: len(assignment.domains[name]) > 1, assignment.domains.keys()))
 
-        # return first in list. If empty return nothing
-        if len(l) > 0:
-            return l[0]
-        else:
-            return
+        # Returns first element of list of legal values (len > 1)
+        return list(filter(
+            lambda name: len(assignment[name]) > 1, assignment.keys()))[0]
 
+        
     def inference(self, assignment, queue):
         """The function 'AC-3' from the pseudocode in the textbook.
         'assignment' is the current partial assignment, that contains
         the lists of legal values for each undecided variable. 'queue'
         is the initial queue of arcs that should be visited.
         """
-        # TODO: IMPLEMENT THIS
 
-        queue = set(queue)
-        while len(queue) > 0:
-            elem = queue.pop()
-            if self.revise(assignment, elem[0], elem[1]):
-                if len(assignment) == 0: return False
-                for elem_neigh in self.get_all_neighboring_arcs(elem[0]):
-                    queue.append((elem_neigh,elem[0]))
+        while queue:
+            Xi,Xj = queue.pop()
+            if self.revise(assignment, Xi, Xj):
+                if len(assignment[Xi]) == 0:
+                    return False
+                for Xk, _ in self.get_all_neighboring_arcs(Xi):
+                    queue.append((Xk, Xi))
         return True
 
     def revise(self, assignment, i, j):
@@ -158,13 +171,15 @@ class CSP:
         between i and j, the value should be deleted from i's list of
         legal values in 'assignment'.
         """
-        # TODO: IMPLEMENT THIS
         revised = False
         for x in assignment[i]:
+            not_remove = False
             for y in assignment[j]:             # might be wrong
-                if x is not y and (x, y) not in self.constraints[i][j]:
-                    assignment[i].remove(x)
-                    revised = True
+                if (x, y) in self.constraints[i][j]:
+                    not_remove = True
+            if not not_remove:
+                assignment[i].remove(x)
+                revised = True
         return revised
 
 
@@ -238,15 +253,18 @@ def print_sudoku_solution(solution):
 
 if __name__ == '__main__':
 
-    sudoku = create_sudoku_csp("easy.txt")
+    sudoku = create_sudoku_csp("veryhard.txt")
+    #mapcolor = create_map_coloring_csp()
 
-    mapcolor = create_map_coloring_csp()
-    print mapcolor.constraints['WA']['SA']
-    print 'k \n'
-    #print "lol",mapcolor.domains[mapcolor.get_all_arcs()[0][0]]
-    print mapcolor.revise(mapcolor.domains, mapcolor.get_all_arcs()[
-        0][0], mapcolor.get_all_arcs()[0][1])
-    print '\n'
-    print mapcolor.get_all_arcs()
+    print_sudoku_solution(sudoku.backtracking_search())
+
+    #mapcolor = create_map_coloring_csp()
+    #print mapcolor.constraints['WA']['SA']
+    #print 'k \n'
+    # print "lol",mapcolor.domains[mapcolor.get_all_arcs()[0][0]]
+    # print mapcolor.revise(mapcolor.domains, mapcolor.get_all_arcs()[
+    #    0][0], mapcolor.get_all_arcs()[0][1])
+    #print '\n'
+    #print mapcolor.get_all_arcs()
 
     print "done"
