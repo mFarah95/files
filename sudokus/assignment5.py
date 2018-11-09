@@ -17,6 +17,10 @@ class CSP:
         # the variable pair (i, j)
         self.constraints = {}
 
+        self.countBTcalls = 0
+
+        self.countBTfailures = 0
+
     def add_variable(self, name, domain):
         """Add a new variable to the CSP. 'name' is the variable name
         and 'domain' is a list of the legal values for the variable.
@@ -87,6 +91,7 @@ class CSP:
         self.inference(assignment, self.get_all_arcs())
 
         # Call backtrack with the partial assignment 'assignment'
+        self.countBTcalls += 1
         return self.backtrack(assignment)
 
     def backtrack(self, assignment):
@@ -113,9 +118,8 @@ class CSP:
         assignments and inferences that took place in previous
         iterations of the loop.
         """
-        # TODO: IMPLEMENT THIS
 
-        # if assignment is complete (no domains with 1 value)
+        # if assignment is complete (all domains with 1 value)
         if all(map(lambda key: len(assignment[key]) == 1, assignment.keys())):
             return assignment
 
@@ -128,9 +132,14 @@ class CSP:
 
             if self.inference(copy_assignment,
                               self.get_all_neighboring_arcs(var)):
+
+                self.countBTcalls += 1
                 result = self.backtrack(copy_assignment)
+
                 if result:
                     return result
+
+        self.countBTfailures += 1
 
         return False
 
@@ -145,7 +154,6 @@ class CSP:
         return list(filter(
             lambda name: len(assignment[name]) > 1, assignment.keys()))[0]
 
-        
     def inference(self, assignment, queue):
         """The function 'AC-3' from the pseudocode in the textbook.
         'assignment' is the current partial assignment, that contains
@@ -154,7 +162,7 @@ class CSP:
         """
 
         while queue:
-            Xi,Xj = queue.pop()
+            Xi, Xj = queue.pop()
             if self.revise(assignment, Xi, Xj):
                 if len(assignment[Xi]) == 0:
                     return False
@@ -172,14 +180,21 @@ class CSP:
         legal values in 'assignment'.
         """
         revised = False
+
         for x in assignment[i]:
-            not_remove = False
-            for y in assignment[j]:             # might be wrong
+
+            satisfied_con = False
+            for y in assignment[j]:
+
+                # if contstraint is satisfied for (X,Y)
                 if (x, y) in self.constraints[i][j]:
-                    not_remove = True
-            if not not_remove:
+                    satisfied_con = True
+
+            # if not satisfied, remove x from domain
+            if not satisfied_con:
                 assignment[i].remove(x)
                 revised = True
+
         return revised
 
 
@@ -254,17 +269,10 @@ def print_sudoku_solution(solution):
 if __name__ == '__main__':
 
     sudoku = create_sudoku_csp("veryhard.txt")
-    #mapcolor = create_map_coloring_csp()
 
     print_sudoku_solution(sudoku.backtracking_search())
-
-    #mapcolor = create_map_coloring_csp()
-    #print mapcolor.constraints['WA']['SA']
-    #print 'k \n'
-    # print "lol",mapcolor.domains[mapcolor.get_all_arcs()[0][0]]
-    # print mapcolor.revise(mapcolor.domains, mapcolor.get_all_arcs()[
-    #    0][0], mapcolor.get_all_arcs()[0][1])
-    #print '\n'
-    #print mapcolor.get_all_arcs()
-
-    print "done"
+    print "\n"
+    print "number of times BACKTRACK function returned failure:"
+    print sudoku.countBTfailures
+    print "number of times BACKTRACK function was called:"
+    print sudoku.countBTcalls
